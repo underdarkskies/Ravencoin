@@ -1,6 +1,106 @@
-Raven Core integration/staging tree
+This has been a comprehensive project for me. If you appreciate the work done <br />
+please consider donating(RVN) to: RD7yadeCvSDs4fCbEPuHstU3GHbiS7ao9q <br />
+
+Ravencoin - an extended RPC version of Ravencoin  
 =====================================
 
+Major Changes Include:
+----------------
+Removing Full BIP173(Bech32) support <br />
+Rebasing Ravencoin to the correct commit of bitcoin <br />
+Adding address, spent and timestamp indexes and RPC calls <br />
+
+Compiling Notes (linux):
+----------------
+
+Prerequisites:  
+
+```
+$sudo apt-get -y install build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils python3
+$sudo apt-get install libboost-all-dev
+$sudo apt-get install software-properties-common
+$sudo add-apt-repository ppa:bitcoin/bitcoin
+$sudo apt-get update
+$sudo apt-get install libdb4.8-dev libdb4.8++-dev
+$sudo apt-get install libminiupnpc-dev
+$sudo apt-get install libzmq3-dev
+```
+
+Compiling:  
+
+```
+$sudo ./autogen.sh
+$./configure --enable-cxx --disable-tests --enable-reduce-exports --disable-bench --disable-shared --with-pic --prefix=$BDB_PREFIX CXXFLAGS="-fPIC" CPPFLAGS="-fPIC"
+$make
+```
+
+Helpful Commands
+----------------
+(start ravend)  
+```
+$ravend -daemon
+```
+(stop ravend)  
+```
+$raven-cli stop
+```
+Sample raven.conf
+----------------
+```
+#server=1 tells Bitcoin-Qt and bitcoind to accept JSON-RPC commands
+server=1
+
+#Set rpcuser and rpcpassword to your own values for security
+rpcuser=a-unique-username
+rpcpassword=a-unique-password
+
+#allow connections from localhost
+rpcallowip=127.0.0.1
+whitelist=127.0.0.1
+
+#Listen for RPC connections on this TCP port:
+rpcport=8766
+
+#Miscellaneous options
+
+txindex=1
+addressindex=1
+spentindex=1
+timestampindex=1
+
+mempoolexpiry=72 # Default 336
+rpcworkqueue=1100
+maxmempool=2000
+dbcache=1000
+maxtxfee=1.0
+uacomment=bitcore-sl
+zmqpubrawtx=tcp://127.0.0.1:28332
+zmqpubhashblock=tcp://127.0.0.1:28332
+dbmaxfilesize=64
+```
+Packaging Ravencoin for Ravencore:
+----------------
+```
+$sudo ./autogen.sh
+$./configure --enable-cxx --disable-tests --enable-reduce-exports --disable-bench --with-pic --prefix=$BDB_PREFIX CXXFLAGS="-fPIC" CPPFLAGS="-fPIC"
+$make
+$mkdir ~/package && mkdir ~/package/ravencoin-0.15.0
+$sudo make install DESTDIR=~/package/ravencoin-0.15.0
+$cd ~/package/
+$sudo find . -name "lib*.la" -delete
+$sudo find . -name "lib*.a" -delete
+$sudo rm -rf ravencoin-0.15.0/lib/pkgconfig
+$find ravencoin-0.15.0/ -not -name "*.dbg" | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ~/ravencoin-0.15.0-linux64.tar.gz
+$cd
+$sha256sum ravencoin-0.15.0-linux64.tar.gz > SHA256SUMS
+$gpg --digest-algo sha256 --clearsign SHA256SUMS # outputs SHA256SUMS.asc
+##(enter password for gpg key)##
+$rm SHA256SUMS
+````
+upload SHA256SUMS.asc and .tar.gz to github release page
+
+Raven Core integration/staging tree
+=====================================
 https://ravencoin.org
 
 What is Raven?
